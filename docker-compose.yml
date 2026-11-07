@@ -1,0 +1,21 @@
+# Optional: run a real local MongoDB instead of the embedded dev database.
+#
+#   1. Start Docker Desktop
+#   2. docker compose up -d
+#   3. In .env.local set:  MONGODB_URI=mongodb://localhost:27017/clinically
+#   4. npm run dev
+#
+# Data persists in the named volume "clinically_mongo_data".
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: clinically-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - clinically_mongo_data:/data/db
+
+volumes:
+  clinically_mongo_data:

@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Clinically
+.mongo-data
+.env.local
+
+# Uploaded files (private)
+uploads

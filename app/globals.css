@@ -1,26 +1,186 @@
 @import "tailwindcss";
 
+@theme {
+  /* Primary — calm, trustworthy medical blue */
+  --color-brand-50: #eff7ff;
+  --color-brand-100: #dbedfe;
+  --color-brand-200: #bfe0fe;
+  --color-brand-300: #93ccfd;
+  --color-brand-400: #60affa;
+  --color-brand-500: #3b91f6;
+  --color-brand-600: #2174ea;
+  --color-brand-700: #195dd1;
+  --color-brand-800: #1b4da9;
+  --color-brand-900: #1c4385;
+
+  /* Secondary — healthcare teal / mint */
+  --color-teal-50: #effcf9;
+  --color-teal-100: #c9f5ec;
+  --color-teal-200: #97e9da;
+  --color-teal-300: #5fd6c4;
+  --color-teal-400: #33bcab;
+  --color-teal-500: #16a394;
+  --color-teal-600: #0d8479;
+  --color-teal-700: #106a62;
+
+  --color-ink: #0f1b2d;
+  --color-muted: #5b6677;
+
+  /* Soft, layered shadows for a clean clinical feel */
+  --shadow-card: 0 1px 2px rgba(15, 27, 45, 0.04),
+    0 1px 3px rgba(15, 27, 45, 0.06);
+  --shadow-soft: 0 10px 30px -12px rgba(8, 35, 73, 0.12);
+  --shadow-pop: 0 12px 34px -10px rgba(8, 35, 73, 0.22);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f1b2d;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
+  /* Subtle medical tint in the corners over a soft off-white */
+  background:
+    radial-gradient(
+      1100px 540px at 100% -8%,
+      rgba(22, 163, 148, 0.06),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 480px at -8% 0%,
+      rgba(33, 116, 234, 0.05),
+      transparent 55%
+    ),
+    #f4f7fb;
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Thin, unobtrusive scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cdd6e2 transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #cdd6e2;
+  border-radius: 999px;
+}
+
+/* Reusable component classes */
+@layer components {
+  .card {
+    @apply rounded-2xl border border-slate-200/70 bg-white;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Shared button base (grouped selector so variants don't @apply each other) */
+  .btn,
+  .btn-primary,
+  .btn-outline,
+  .btn-ghost,
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all;
+  }
+  .btn:disabled,
+  .btn-primary:disabled,
+  .btn-outline:disabled,
+  .btn-ghost:disabled,
+  .btn-danger:disabled {
+    @apply opacity-50 pointer-events-none;
+  }
+  .btn-primary {
+    @apply text-white;
+    background-image: linear-gradient(
+      180deg,
+      var(--color-brand-500),
+      var(--color-brand-600)
+    );
+    box-shadow: 0 1px 2px rgba(15, 27, 45, 0.12),
+      0 6px 16px -8px rgba(33, 116, 234, 0.5);
+  }
+  .btn-primary:hover {
+    background-image: linear-gradient(
+      180deg,
+      var(--color-brand-600),
+      var(--color-brand-700)
+    );
+  }
+  .btn-outline {
+    @apply border border-slate-200 bg-white text-slate-700;
+    box-shadow: var(--shadow-card);
+  }
+  .btn-outline:hover {
+    @apply border-slate-300 bg-slate-50;
+  }
+  .btn-ghost {
+    @apply text-slate-600;
+  }
+  .btn-ghost:hover {
+    @apply bg-slate-100 text-slate-800;
+  }
+  .btn-danger {
+    @apply bg-rose-600 text-white;
+  }
+  .btn-danger:hover {
+    @apply bg-rose-700;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-100/70;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-slate-600;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  /* Tinted icon chip used across stat cards / sections */
+  .soft-icon {
+    @apply flex items-center justify-center rounded-xl;
+  }
+}
+
+/* Soft cross/plus medical motif (used on the login panel) */
+.medical-pattern {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.14) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14) 2px, transparent 2px);
+  background-size: 26px 26px;
+  background-position: -1px -1px;
+}
+
+@keyframes slidein {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  .card {
+    box-shadow: none;
+  }
 }

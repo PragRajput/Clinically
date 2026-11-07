@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🩺 Clinically — Clinic Management System
 
-## Getting Started
+A fast, responsive staff dashboard for a healthcare clinic. Manage patients,
+visits, prescriptions, appointments, billing, services and reports — all in one
+place, with role-based access for **admins, doctors and receptionists**.
 
-First, run the development server:
+Built with **Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 ·
+MongoDB (Mongoose)**.
+
+---
+
+## ✨ Features
+
+- **Authentication & roles** — secure JWT cookie sessions; three roles (admin /
+  doctor / receptionist) with granular permissions.
+- **Dashboard** — today's appointments, visits, money collected, outstanding
+  balances and recent activity at a glance.
+- **Patients** — registration, fast search, and a full profile showing complete
+  visit history, total paid, outstanding balance, last visit, allergies (with a
+  safety banner), chronic conditions and emergency contact.
+- **Visits** — record chief complaint, diagnosis, **vitals** (BP, pulse, temp,
+  weight, height, SpO₂), **services taken**, **prescriptions** (drug, dosage,
+  frequency, duration, instructions), notes and follow-up date. Every visit
+  generates a **printable invoice**.
+- **Billing** — automatic totals (subtotal, discount, tax, paid, balance),
+  payment status, record additional payments, and an outstanding-balances view.
+- **Appointments** — day-by-day scheduling with status tracking (scheduled /
+  completed / cancelled / no-show) and one-click "start visit".
+- **Documents & lab reports** — upload PDFs/images (lab results, scans,
+  insurance, etc.) to a patient or a specific visit; access-controlled, never
+  public. Image thumbnails, view/download/delete.
+- **Follow-ups** — a dedicated view of patients with upcoming follow-up dates,
+  grouped into overdue / today / this week / upcoming.
+- **Services catalog** — manage the services your clinic offers and their prices.
+- **Staff management** (admin) — add/edit staff, assign roles, activate/deactivate.
+- **Clinic settings** (admin) — clinic name, address, contacts, default tax rate
+  and invoice footer, used across the app and on printed invoices.
+- **Reports & CSV export** — revenue by month, visits by doctor, top services,
+  payment breakdown; export patients and billing to CSV.
+- **My account** — every user can update their profile and change their password.
+- **Global patient search** in the top bar, **toast notifications**, a **7-day
+  collections chart**, **birthday reminders** and **vitals trends** (weight / BP).
+- **Responsive** — works on desktop and mobile with a collapsible sidebar.
+
+---
+
+## 🚀 Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open **http://localhost:3000** and sign in with a demo account below.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> **Zero database setup required.** If no `MONGODB_URI` is configured, the app
+> automatically boots an **embedded MongoDB** (stored in `./.mongo-data`) and
+> seeds demo data on first run. The first start downloads a small MongoDB binary.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Demo accounts
 
-## Learn More
+| Role          | Email                       | Password       |
+| ------------- | --------------------------- | -------------- |
+| Administrator | `admin@clinically.test`     | `admin123`     |
+| Doctor        | `doctor@clinically.test`    | `doctor123`    |
+| Receptionist  | `reception@clinically.test` | `reception123` |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🗄️ Using a real MongoDB
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Edit `.env.local` and set a connection string:
 
-## Deploy on Vercel
+```env
+# Local MongoDB via Docker (see docker-compose.yml)
+MONGODB_URI=mongodb://localhost:27017/clinically
+# …or MongoDB Atlas
+# MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>/clinically
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To run a local MongoDB with Docker:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+docker compose up -d      # starts MongoDB on :27017
+npm run dev
+```
+
+### Configuration (`.env.local`)
+
+| Variable                  | Purpose                                               |
+| ------------------------- | ----------------------------------------------------- |
+| `MONGODB_URI`             | MongoDB connection (omit to use the embedded DB).     |
+| `AUTH_SECRET`             | Secret used to sign session tokens (change it!).      |
+| `AUTO_SEED`               | Seed demo data when the DB is empty (`true`/`false`). |
+| `NEXT_PUBLIC_CURRENCY`    | Currency symbol shown in the UI (default `₹`).        |
+| `NEXT_PUBLIC_CLINIC_NAME` | Clinic name shown in the UI.                          |
+
+Reset the embedded demo database any time:
+
+```bash
+npm run db:reset   # wipes ./.mongo-data; re-seeds on next start
+```
+
+---
+
+## 🧱 Project structure
+
+```
+app/
+  (dashboard)/      Protected pages: dashboard, patients, visits,
+                    appointments, billing, services, staff, reports
+  api/              Route handlers (auth, patients, visits, …)
+  login/            Login screen
+components/         Shell, forms, dialogs and shared UI
+lib/                db, auth/session, permissions, queries, validation, utils
+models/             Mongoose schemas (User, Patient, Service, Appointment, Visit)
+proxy.ts            Auth gate (Next.js 16 proxy / formerly middleware)
+```
+
+---
+
+## 🔐 Roles & permissions (summary)
+
+| Capability             | Admin | Doctor | Receptionist |
+| ---------------------- | :---: | :----: | :----------: |
+| View patients          |  ✅   |   ✅   |      ✅      |
+| Add/edit patients      |  ✅   |   ✅   |      ✅      |
+| Record clinical visits |  ✅   |   ✅   |      —       |
+| Collect payments       |  ✅   |   —    |      ✅      |
+| Manage services        |  ✅   |   —    |      —       |
+| Manage staff           |  ✅   |   —    |      —       |
+| View reports           |  ✅   |   ✅   |      ✅      |
+
+Adjust these in `lib/permissions.ts`.
