@@ -48,6 +48,7 @@ MongoDB (Mongoose)**.
 
 ```bash
 npm install
+cp .env.example .env.local   # optional in development — every setting has a dev default
 npm run dev
 ```
 
@@ -64,6 +65,9 @@ Open **http://localhost:3000** and sign in with a demo account below.
 | Administrator | `admin@clinically.test`     | `admin123`     |
 | Doctor        | `doctor@clinically.test`    | `doctor123`    |
 | Receptionist  | `reception@clinically.test` | `reception123` |
+
+Demo accounts are only seeded (and listed on the sign-in page) in development,
+or in production when `AUTO_SEED=true` is set explicitly.
 
 ---
 
@@ -90,8 +94,9 @@ npm run dev
 | Variable                  | Purpose                                               |
 | ------------------------- | ----------------------------------------------------- |
 | `MONGODB_URI`             | MongoDB connection (omit to use the embedded DB).     |
-| `AUTH_SECRET`             | Secret used to sign session tokens (change it!).      |
-| `AUTO_SEED`               | Seed demo data when the DB is empty (`true`/`false`). |
+| `AUTH_SECRET`             | Secret used to sign session tokens. **Required in production** (min. 32 chars). |
+| `AUTO_SEED`               | Seed demo data when the DB is empty (`true`/`false`). Default: on in dev, off in production. |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Creates the first admin on an empty DB when demo mode is off. |
 | `NEXT_PUBLIC_CURRENCY`    | Currency symbol shown in the UI (default `₹`).        |
 | `NEXT_PUBLIC_CLINIC_NAME` | Clinic name shown in the UI.                          |
 
@@ -100,6 +105,17 @@ Reset the embedded demo database any time:
 ```bash
 npm run db:reset   # wipes ./.mongo-data; re-seeds on next start
 ```
+
+### Deploying to production
+
+- Set `MONGODB_URI` to a real database — the embedded DB is for development only.
+- Set `AUTH_SECRET` to a long random value (`openssl rand -base64 32`). The app
+  refuses to start a session without one in production.
+- Leave `AUTO_SEED` unset (or `false`) so no demo accounts are created.
+- For the first start, set `ADMIN_EMAIL` and `ADMIN_PASSWORD` (min. 8 chars).
+  If the database has no users, that admin account is created. Remove both
+  variables after you've signed in, and add the rest of your staff from
+  **Staff**.
 
 ---
 

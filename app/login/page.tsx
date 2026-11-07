@@ -5,6 +5,8 @@ import {
   Wallet,
   ShieldCheck,
 } from "lucide-react";
+import { connection } from "next/server";
+import { DEMO_ACCOUNTS, demoModeEnabled } from "@/lib/demo";
 import LoginForm from "./LoginForm";
 
 const clinicName = process.env.NEXT_PUBLIC_CLINIC_NAME || "Clinically";
@@ -15,7 +17,12 @@ const HIGHLIGHTS = [
   { icon: Wallet, text: "Track payments and outstanding balances" },
 ];
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  // Read AUTO_SEED at request time, not build time.
+  await connection();
+  // Only send demo credentials to the browser when demo mode is on.
+  const demoAccounts = demoModeEnabled() ? DEMO_ACCOUNTS : [];
+
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       {/* Left brand panel */}
@@ -82,7 +89,7 @@ export default function LoginPage() {
             Sign in to your clinic dashboard.
           </p>
           <div className="mt-8">
-            <LoginForm />
+            <LoginForm demoAccounts={demoAccounts} />
           </div>
         </div>
       </div>

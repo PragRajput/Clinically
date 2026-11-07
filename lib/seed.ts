@@ -15,6 +15,31 @@ function daysFromNow(n: number, hour = 10, min = 0): Date {
 }
 
 /**
+ * Production bootstrap: if the database has no users and ADMIN_EMAIL +
+ * ADMIN_PASSWORD are set, create that one admin account (no demo data).
+ * Remove the env vars after first login; change the password from My account.
+ */
+export async function ensureBootstrapAdmin(): Promise<void> {
+  const email = process.env.ADMIN_EMAIL?.trim();
+  const password = process.env.ADMIN_PASSWORD;
+  if (!email || !password) return;
+  if ((await User.countDocuments()) > 0) return;
+
+  if (password.length < 8) {
+    console.error("ADMIN_PASSWORD must be at least 8 characters — admin not created.");
+    return;
+  }
+
+  await User.create({
+    name: process.env.ADMIN_NAME?.trim() || "Administrator",
+    email,
+    passwordHash: await hashPassword(password),
+    role: "admin",
+  });
+  console.log(`🔑 Clinically: created initial admin account ${email}`);
+}
+
+/**
  * Populate the database with demo accounts and sample records the first time
  * it's empty. Safe to call repeatedly — it no-ops if any user already exists.
  */

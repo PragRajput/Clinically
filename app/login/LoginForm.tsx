@@ -3,18 +3,18 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import type { DemoAccount } from "@/lib/demo";
 
-const DEMO = [
-  { role: "Administrator", email: "admin@clinically.test", password: "admin123" },
-  { role: "Doctor", email: "doctor@clinically.test", password: "doctor123" },
-  { role: "Receptionist", email: "reception@clinically.test", password: "reception123" },
-];
-
-export default function LoginForm() {
+export default function LoginForm({
+  demoAccounts,
+}: {
+  /** Empty unless demo mode is on (see lib/demo.ts). */
+  demoAccounts: DemoAccount[];
+}) {
   const router = useRouter();
   const params = useSearchParams();
-  const [email, setEmail] = useState("admin@clinically.test");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState(demoAccounts[0]?.email ?? "");
+  const [password, setPassword] = useState(demoAccounts[0]?.password ?? "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -72,25 +72,27 @@ export default function LoginForm() {
         Sign in
       </button>
 
-      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
-        <p className="mb-2 font-medium text-slate-700">Demo accounts</p>
-        <div className="space-y-1">
-          {DEMO.map((d) => (
-            <button
-              key={d.email}
-              type="button"
-              onClick={() => {
-                setEmail(d.email);
-                setPassword(d.password);
-              }}
-              className="flex w-full items-center justify-between rounded px-2 py-1 text-left hover:bg-white"
-            >
-              <span className="font-medium text-slate-700">{d.role}</span>
-              <span className="text-slate-400">{d.email}</span>
-            </button>
-          ))}
+      {demoAccounts.length > 0 && (
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+          <p className="mb-2 font-medium text-slate-700">Demo accounts</p>
+          <div className="space-y-1">
+            {demoAccounts.map((d) => (
+              <button
+                key={d.email}
+                type="button"
+                onClick={() => {
+                  setEmail(d.email);
+                  setPassword(d.password);
+                }}
+                className="flex w-full items-center justify-between rounded px-2 py-1 text-left hover:bg-white"
+              >
+                <span className="font-medium text-slate-700">{d.role}</span>
+                <span className="text-slate-400">{d.email}</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </form>
   );
 }

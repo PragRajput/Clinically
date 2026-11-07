@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { demoModeEnabled } from "./demo";
 
 /**
  * Database connection helper.
@@ -59,12 +60,14 @@ export async function connectDB(): Promise<typeof mongoose> {
   }
   cache.conn = await cache.promise;
 
-  // Seed demo data once per process when the DB is empty.
-  if (!cache.seeded && process.env.AUTO_SEED !== "false") {
+  // Once per process, when the DB is empty: seed demo data in demo mode (see
+  // lib/demo.ts), otherwise create the ADMIN_EMAIL/ADMIN_PASSWORD admin if set.
+  if (!cache.seeded) {
     cache.seeded = true;
     try {
-      const { ensureSeeded } = await import("./seed");
-      await ensureSeeded();
+      const { ensureSeeded, ensureBootstrapAdmin } = await import("./seed");
+      if (demoModeEnabled()) await ensureSeeded();
+      else await ensureBootstrapAdmin();
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("Auto-seed failed:", err);
